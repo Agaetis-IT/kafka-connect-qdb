@@ -1,14 +1,9 @@
 package net.quasardb.kafka.common.resolver;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.HashMap;
-
+import org.apache.kafka.connect.errors.DataException;
+import org.apache.kafka.connect.sink.SinkRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.apache.kafka.connect.sink.SinkRecord;
-import org.apache.kafka.connect.errors.DataException;
 
 public class StaticResolver<T> extends Resolver<T> {
 

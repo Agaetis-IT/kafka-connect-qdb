@@ -1,38 +1,23 @@
 package net.quasardb.kafka.sink;
 
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.apache.kafka.clients.consumer.OffsetAndMetadata;
-import org.apache.kafka.common.TopicPartition;
-import org.apache.kafka.connect.connector.ConnectRecord;
-import org.apache.kafka.connect.data.Field;
-import org.apache.kafka.connect.errors.DataException;
-import org.apache.kafka.connect.sink.SinkRecord;
-import org.apache.kafka.connect.sink.SinkTask;
-import org.apache.kafka.connect.errors.DataException;
-
-import net.quasardb.qdb.Session;
-import net.quasardb.qdb.ts.Column;
-import net.quasardb.qdb.ts.Table;
-import net.quasardb.qdb.ts.Tables;
-import net.quasardb.qdb.ts.Writer;
-
 import net.quasardb.kafka.common.ConnectorUtils;
 import net.quasardb.kafka.common.TableInfo;
 import net.quasardb.kafka.common.TableRegistry;
-import net.quasardb.kafka.common.RecordConverter;
 import net.quasardb.kafka.common.resolver.Resolver;
 import net.quasardb.kafka.common.writer.RecordWriter;
-import net.quasardb.kafka.common.writer.RowRecordWriter;
+import net.quasardb.qdb.Session;
+import net.quasardb.qdb.ts.Table;
+import net.quasardb.qdb.ts.Writer;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.connect.errors.DataException;
+import org.apache.kafka.connect.sink.SinkRecord;
+import org.apache.kafka.connect.sink.SinkTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class QdbSinkTask extends SinkTask {
 

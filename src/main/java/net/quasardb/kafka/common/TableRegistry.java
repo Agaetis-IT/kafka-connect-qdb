@@ -1,15 +1,12 @@
 package net.quasardb.kafka.common;
 
-import java.util.Map;
 import java.util.HashMap;
-
+import java.util.Map;
+import net.quasardb.qdb.Session;
+import net.quasardb.qdb.exception.AliasNotFoundException;
+import net.quasardb.qdb.ts.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import net.quasardb.qdb.exception.AliasNotFoundException;
-import net.quasardb.qdb.Session;
-import net.quasardb.qdb.ts.Table;
-import net.quasardb.kafka.common.TableInfo;
 
 /**
  * A registry that contains one or more TableInfo entries, which can be

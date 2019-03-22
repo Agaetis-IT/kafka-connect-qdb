@@ -1,19 +1,15 @@
 package net.quasardb.kafka.common;
 
 import java.util.Map;
-
+import net.quasardb.qdb.ts.Column;
 import net.quasardb.qdb.ts.Timespec;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.apache.kafka.connect.data.Field;
+import net.quasardb.qdb.ts.Value;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
-import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.kafka.connect.errors.DataException;
-
-import net.quasardb.qdb.ts.Column;
-import net.quasardb.qdb.ts.Value;
+import org.apache.kafka.connect.sink.SinkRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * API for various strategies for converting a Kafka record into

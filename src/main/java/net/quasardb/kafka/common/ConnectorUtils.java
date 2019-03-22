@@ -1,25 +1,22 @@
 package net.quasardb.kafka.common;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-
-import org.apache.kafka.connect.errors.DataException;
-
-import net.quasardb.qdb.Session;
+import net.quasardb.kafka.common.resolver.ColumnsResolver;
+import net.quasardb.kafka.common.resolver.ListColumnResolver;
 import net.quasardb.kafka.common.resolver.Resolver;
-import net.quasardb.kafka.common.resolver.TopicResolver;
 import net.quasardb.kafka.common.resolver.StaticResolver;
 import net.quasardb.kafka.common.resolver.StringColumnResolver;
-import net.quasardb.kafka.common.resolver.ListColumnResolver;
-import net.quasardb.kafka.common.resolver.ColumnsResolver;
+import net.quasardb.kafka.common.resolver.TopicResolver;
+import net.quasardb.kafka.common.writer.ColumnRecordWriter;
 import net.quasardb.kafka.common.writer.RecordWriter;
 import net.quasardb.kafka.common.writer.RowRecordWriter;
-import net.quasardb.kafka.common.writer.ColumnRecordWriter;
+import net.quasardb.qdb.Session;
+import org.apache.kafka.connect.errors.DataException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConnectorUtils {
 

@@ -1,19 +1,14 @@
 package net.quasardb.kafka.common.writer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.apache.kafka.connect.sink.SinkRecord;
-import org.apache.kafka.connect.errors.DataException;
-
-import net.quasardb.qdb.ts.Writer;
+import net.quasardb.kafka.common.RecordConverter;
+import net.quasardb.kafka.common.TableInfo;
 import net.quasardb.qdb.ts.Timespec;
 import net.quasardb.qdb.ts.Value;
-
-import net.quasardb.kafka.common.TableInfo;
-import net.quasardb.kafka.common.RecordConverter;
-
-import net.quasardb.kafka.common.writer.RecordWriter;
+import net.quasardb.qdb.ts.Writer;
+import org.apache.kafka.connect.errors.DataException;
+import org.apache.kafka.connect.sink.SinkRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RowRecordWriter extends RecordWriter {
 

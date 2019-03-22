@@ -1,10 +1,9 @@
 package net.quasardb.kafka.common.writer;
 
+import net.quasardb.kafka.common.TableInfo;
+import net.quasardb.qdb.ts.Writer;
 import org.apache.kafka.connect.errors.DataException;
 import org.apache.kafka.connect.sink.SinkRecord;
-
-import net.quasardb.qdb.ts.Writer;
-import net.quasardb.kafka.common.TableInfo;
 
 abstract public class RecordWriter {
 
