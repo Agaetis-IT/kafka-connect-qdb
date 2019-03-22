@@ -94,12 +94,12 @@ public class QdbSinkTask extends SinkTask {
         }
 
         Table skeleton = new Table(this.session, this.skeletonTableResolver.resolve(record));
-        log.info("creating copy of skeleton table '" + skeleton.getName() + "' into target table '" + tableName + "'");
+        log.info("creating copy of skeleton table '{}' into target table '{}'", skeleton.getName(), tableName);
         Table newTable = Table.create(this.session, tableName, skeleton);
 
         if (this.tableTagsResolver != null) {
             List<String> tags = this.tableTagsResolver.resolve(record);
-            log.debug("attaching tags " + tags.toString() + " to table " + tableName);
+            log.debug("attaching tags {} to table {}", tags, tableName);
             Table.attachTags(this.session, tableName, tags);
         }
 
@@ -111,7 +111,7 @@ public class QdbSinkTask extends SinkTask {
             throw new DataException("Invalid table name provided: " + tableName);
         }
 
-        log.info("Adding table to registry: " + tableName);
+        log.info("Adding table to registry: {}", tableName);
 
         TableInfo t = this.tableRegistry.put(this.session, tableName);
         if (t == null) {

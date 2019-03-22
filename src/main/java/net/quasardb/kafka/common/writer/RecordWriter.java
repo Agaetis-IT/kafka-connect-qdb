@@ -7,6 +7,6 @@ import org.apache.kafka.connect.sink.SinkRecord;
 
 abstract public class RecordWriter {
 
-    abstract public void write(Writer w, TableInfo t, SinkRecord s) throws DataException, RuntimeException;
+    abstract public void write(Writer w, TableInfo t, SinkRecord s) throws RuntimeException;
 
 }

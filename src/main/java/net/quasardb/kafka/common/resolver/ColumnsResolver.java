@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 public class ColumnsResolver extends Resolver<String> {
 
-    private static final Logger log = LoggerFactory.getLogger(ColumnResolver.class);
+    private static final Logger log = LoggerFactory.getLogger(ColumnsResolver.class);
     private String[] columnNames;
     private String delim;
 

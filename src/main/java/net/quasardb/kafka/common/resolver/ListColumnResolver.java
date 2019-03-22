@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 
 public class ListColumnResolver<T> extends ColumnResolver<List<T> > {
 
-    private static final Logger log = LoggerFactory.getLogger(StringColumnResolver.class);
+    private static final Logger log = LoggerFactory.getLogger(ListColumnResolver.class);
 
     public ListColumnResolver(String columnName) {
         super(columnName);
@@ -17,7 +17,7 @@ public class ListColumnResolver<T> extends ColumnResolver<List<T> > {
     }
 
     protected List<T> handleSuffix(List<T> result, List<T> suffix) {
-        this.log.warn("Unable to handle suffix for list types");
+        log.warn("Unable to handle suffix for list types");
         return result;
     }
 }

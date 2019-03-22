@@ -68,7 +68,7 @@ public class RecordConverter {
                     return Value.createInt64((Long)value);
                 }
 
-                log.warn("Ignoring int64 column '" + qdbColumn.getName () + "': expected Long value, got: " + value.getClass());
+                log.warn("Ignoring int64 column '{}': expected Long value, got: {}", qdbColumn.getName (), value.getClass());
                 return Value.createNull();
             case DOUBLE:
                 if (value instanceof Double) {
@@ -79,7 +79,7 @@ public class RecordConverter {
                     return Value.createDouble(((Long)value).doubleValue());
                 }
 
-                log.warn("Ignoring double column '" + qdbColumn.getName () + "': expected Double value, got: " + value.getClass());
+                log.warn("Ignoring double column '{}': expected Double value, got: {}", qdbColumn.getName (), value.getClass());
                 return Value.createNull();
             case TIMESTAMP:
                 if (value instanceof Long) {
@@ -93,12 +93,12 @@ public class RecordConverter {
                     return Value.createSafeBlob((byte[])value);
                 }
 
-                log.warn("Ignoring blob column '" + qdbColumn.getName () + "': expected String value, got: " + value.getClass());
+                log.warn("Ignoring blob column '{}': expected String value, got: {}", qdbColumn.getName (), value.getClass());
                 return Value.createNull();
             }
         }
 
-        log.warn("key not found, setting null value: " + qdbColumn.getName());
+        log.warn("key not found, setting null value: {}", qdbColumn.getName());
         return Value.createNull();
     }
 
@@ -123,7 +123,7 @@ public class RecordConverter {
                     return Value.createInt64((Long)value);
                 }
 
-                log.warn("Ignoring int64 column '" + qdbColumn.getName () + "': expected Long value, got: " + value.getClass());
+                log.warn("Ignoring int64 column '{}': expected Long value, got: {}", qdbColumn.getName(), value.getClass());
                 return Value.createNull();
             case DOUBLE:
                 if (value instanceof Double) {
@@ -134,7 +134,7 @@ public class RecordConverter {
                     return Value.createDouble(((Long)value).doubleValue());
                 }
 
-                log.warn("Ignoring double column '" + qdbColumn.getName () + "': expected Double value, got: " + value.getClass());
+                log.warn("Ignoring double column '{}': expected Double value, got: {}", qdbColumn.getName(), value.getClass());
                 return Value.createNull();
             case TIMESTAMP:
                 if (value instanceof Long) {
@@ -148,12 +148,12 @@ public class RecordConverter {
                     return Value.createSafeString((String)value);
                 }
 
-                log.warn("Ignoring blob column '" + qdbColumn.getName () + "': expected String value, got: " + value.getClass());
+                log.warn("Ignoring blob column '{}': expected String value, got: {}", qdbColumn.getName(), value.getClass());
                 return Value.createNull();
             }
         }
 
-        log.warn("key not found, setting null value: " + qdbColumn.getName());
+        log.warn("key not found, setting null value: {}", qdbColumn.getName());
         return Value.createNull();
     }
 

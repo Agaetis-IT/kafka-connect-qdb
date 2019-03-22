@@ -12,7 +12,7 @@ public class StaticResolver<T> extends Resolver<T> {
     private T value;
 
     public StaticResolver(T value) {
-        log.debug("Initializing static resolver with value '" + value.toString() + "'");
+        log.debug("Initializing static resolver with value '{}'", value.toString());
         this.value = value;
     }
 

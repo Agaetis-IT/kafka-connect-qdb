@@ -25,7 +25,7 @@ abstract public class ColumnResolver<T> extends Resolver<T> {
         this.columnName = columnName;
         this.suffix = suffix;
 
-        log.info("Initializing column table resolver with suffix: " + suffix);
+        log.info("Initializing column table resolver with suffix: {}", suffix);
     }
 
     @Override
@@ -54,21 +54,20 @@ abstract public class ColumnResolver<T> extends Resolver<T> {
 
     abstract protected T handleSuffix(T result, T suffix);
 
-    private T resolve(Struct data) throws DataException {
-        Object value = data.get(this.columnName);
+    private T doResolve(Object o, String s) {
+        Object value = o;
         if (value == null) {
-            throw new DataException("table column '" + this.columnName + "' not found, cannot resolve: " + data.toString());
+            throw new DataException("table column '" + this.columnName + "' not found, cannot resolve: " + s);
         }
 
         return (T)value;
     }
 
-    private T resolve(Map data) throws DataException {
-        Object value = data.get(this.columnName);
-        if (value == null) {
-            throw new DataException("table column '" + this.columnName + "' not found, cannot resolve: " + data.toString());
-        }
+    private T resolve(Struct data) throws DataException {
+        return doResolve(data.get(this.columnName), data.toString());
+    }
 
-        return (T)value;
+    private T resolve(Map data) throws DataException {
+        return doResolve(data.get(this.columnName), data.toString());
     }
 }

@@ -17,7 +17,7 @@ public class TableRegistry {
     private Map<String, TableInfo> registry;
 
     public TableRegistry() {
-        this.registry = new HashMap<String, TableInfo>();
+        this.registry = new HashMap<>();
     }
 
     /**
@@ -48,7 +48,7 @@ public class TableRegistry {
     public TableInfo put(String name, TableInfo t) {
         this.registry.put(name, t);
 
-        log.debug("Added table " + name + " to TableRegistry");
+        log.debug("Added table {} to TableRegistry", name);
         return t;
     }
 

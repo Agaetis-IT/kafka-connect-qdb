@@ -14,7 +14,7 @@ public class RowRecordWriter extends RecordWriter {
 
     private static final Logger log = LoggerFactory.getLogger(RowRecordWriter.class);
 
-    public void write(Writer w, TableInfo t, SinkRecord s) throws DataException, RuntimeException {
+    public void write(Writer w, TableInfo t, SinkRecord s) throws RuntimeException {
         Value[] row = RecordConverter.convert (t.getTable().getColumns(), s);
 
         try {
@@ -23,8 +23,8 @@ public class RowRecordWriter extends RecordWriter {
                            : new Timespec(s.timestamp()));
             w.append(t.getOffset(), ts, row);
         } catch (Exception e) {
-            log.error("Unable to write record: " + e.getMessage());
-            log.error("Record: " + s.toString());
+            log.error("Unable to write record: {}", e.getMessage());
+            log.error("Record: {}", s);
             throw new RuntimeException(e);
         }
     }

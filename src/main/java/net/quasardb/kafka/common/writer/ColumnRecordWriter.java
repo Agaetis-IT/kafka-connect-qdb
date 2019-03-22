@@ -7,7 +7,6 @@ import net.quasardb.qdb.ts.Column;
 import net.quasardb.qdb.ts.Timespec;
 import net.quasardb.qdb.ts.Value;
 import net.quasardb.qdb.ts.Writer;
-import org.apache.kafka.connect.errors.DataException;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +23,7 @@ public class ColumnRecordWriter extends RecordWriter {
         this.valueResolver = valueResolver;
     }
 
-    public void write(Writer w, TableInfo t, SinkRecord s) throws DataException, RuntimeException {
+    public void write(Writer w, TableInfo t, SinkRecord s) throws RuntimeException {
         String columnName = this.columnResolver.resolve(s);
         String valueName = this.valueResolver.resolve(s);
 
@@ -33,7 +32,7 @@ public class ColumnRecordWriter extends RecordWriter {
 
         Value val = RecordConverter.convert(c, valueName, s);
 
-        log.debug("has value: " + val.toString());
+        log.debug("has value: {}", val);
 
         Value[] row = { val };
 
@@ -44,13 +43,13 @@ public class ColumnRecordWriter extends RecordWriter {
                            ? Timespec.now()
                            : new Timespec(s.timestamp()));
 
-            log.debug("has timespec: " + ts.toString());
+            log.debug("has timespec: {}", ts);
 
             w.append(offset, ts, row);
 
         } catch (Exception e) {
-            log.error("Unable to write record: " + e.getMessage());
-            log.error("Record: " + s.toString());
+            log.error("Unable to write record: {}", e.getMessage());
+            log.error("Record: {}", s);
             throw new RuntimeException(e);
         }
     }
