@@ -2,6 +2,7 @@ package net.quasardb.kafka.common;
 
 import java.util.Map;
 
+import net.quasardb.qdb.ts.Timespec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,6 +85,13 @@ public class RecordConverter {
 
                 log.warn("Ignoring double column '" + qdbColumn.getName () + "': expected Double value, got: " + value.getClass());
                 return Value.createNull();
+            case TIMESTAMP:
+                if (value instanceof Long) {
+                  return Value.createTimestamp(new Timespec((Long)value));
+                }
+
+                log.warn("Ignoring timestamp column '{}': expected Long value, got: {}", qdbColumn.getName(), value.getClass());
+                return Value.createNull();
             case BLOB:
                 if (value instanceof byte[]) {
                     return Value.createSafeBlob((byte[])value);
@@ -131,6 +139,13 @@ public class RecordConverter {
                 }
 
                 log.warn("Ignoring double column '" + qdbColumn.getName () + "': expected Double value, got: " + value.getClass());
+                return Value.createNull();
+            case TIMESTAMP:
+                if (value instanceof Long) {
+                    return Value.createTimestamp(new Timespec((Long)value));
+                }
+
+                log.warn("Ignoring timestamp column '{}': expected Long value, got: {}", qdbColumn.getName(), value.getClass());
                 return Value.createNull();
             case BLOB:
                 if (value instanceof String) {
