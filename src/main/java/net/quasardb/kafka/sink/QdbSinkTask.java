@@ -99,14 +99,12 @@ public class QdbSinkTask extends SinkTask {
 
         Table skeleton = new Table(this.session, this.skeletonTableResolver.resolve(record));
         log.info("creating copy of skeleton table '{}' into target table '{}'", skeleton.getName(), tableName);
-        Table table;
-        if (tableShardSizeResolver == null) {
-            table = Table.create(this.session, tableName, skeleton);
-        } else {
-            Long shardsize = this.tableShardSizeResolver.resolve(record);
-            log.debug("using shard size {} for table {}", shardsize, tableName);
-            table = Table.create(this.session, tableName, skeleton, shardsize);
-        }
+
+        Long shardsize = this.tableShardSizeResolver.resolve(record);
+        log.debug("using shard size {} for table {}", shardsize, tableName);
+
+        Table table = Table.create(this.session, tableName, skeleton, shardsize);
+
         if (this.tableTagsResolver != null) {
             List<String> tags = this.tableTagsResolver.resolve(record);
             log.debug("attaching tags {} to table {}", tags, tableName);

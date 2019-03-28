@@ -10,7 +10,7 @@ public abstract class Resolver<T> {
 
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
-    private final QdbSinkConfig config;
+    protected final QdbSinkConfig config;
 
     public Resolver(QdbSinkConfig config){
         this.config = config;

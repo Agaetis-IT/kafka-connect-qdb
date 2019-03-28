@@ -14,6 +14,7 @@ import net.quasardb.kafka.common.writer.RecordWriter;
 import net.quasardb.kafka.common.writer.RowRecordWriter;
 import net.quasardb.qdb.Session;
 import net.quasardb.qdb.ts.Timespec;
+import org.apache.kafka.common.utils.Utils;
 import org.apache.kafka.connect.errors.DataException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,58 +75,87 @@ public class ConnectorUtils {
         if (config.getString(TABLE_FROM_COLUMN_CONFIG) != null) {
             log.debug("{} set, using ColumnResolver", TABLE_FROM_COLUMN_CONFIG);
             return new DefaultColumnResolver<>(config, config.getString(TABLE_FROM_COLUMN_CONFIG));
-        } else if (config.getList(TABLE_FROM_COMPOSITE_COLUMNS_CONFIG) != null) {
+        }
+
+        if (config.getList(TABLE_FROM_COMPOSITE_COLUMNS_CONFIG) != null) {
             log.debug("{} set, using ColumnsResolver", TABLE_FROM_COMPOSITE_COLUMNS_CONFIG);
             return new ColumnsResolver(config, config.getList(TABLE_FROM_COMPOSITE_COLUMNS_CONFIG), config.getString(TABLE_FROM_COMPOSITE_COLUMNS_DELIM_CONFIG));
-        } else if (config.getBoolean(TABLE_FROM_TOPIC_CONFIG)) {
+        }
+
+        if (config.getBoolean(TABLE_FROM_TOPIC_CONFIG)) {
             log.debug("{} set to true, using TopicResolver", TABLE_FROM_TOPIC_CONFIG);
             return new TopicResolver(config);
-        } else if (config.getString(TABLE_CONFIG) != null) {
+        }
+
+        if (config.getString(TABLE_CONFIG) != null) {
             log.debug("{} provided, using StaticTableResolver", TABLE_CONFIG);
             return new StaticResolver<>(config, config.getString(TABLE_CONFIG));
-        } else {
-            log.debug("validatedProps: {}", config);
-            throw new DataException("No valid TableResolving strategy could be determined, please correct your configuration");
         }
+
+        if (config.getString(TABLE_FROM_CUSTOM_RESOLVER) != null) {
+            log.debug("{} provided, using custom Resolver", TABLE_FROM_CUSTOM_RESOLVER);
+            return resolver(config, TABLE_FROM_CUSTOM_RESOLVER);
+        }
+
+        log.debug("validatedProps: {}", config);
+        throw new DataException("No valid TableResolving strategy could be determined, please correct your configuration");
+
     }
 
     public static Resolver<String> createSkeletonTableResolver(QdbSinkConfig config) {
         if (config.getString(TABLE_AUTOCREATE_SKELETON_CONFIG) != null) {
             log.debug("{} provided", TABLE_AUTOCREATE_SKELETON_CONFIG);
             return new StaticResolver<>(config, config.getString(TABLE_AUTOCREATE_SKELETON_CONFIG));
-        } else if (config.getString(TABLE_AUTOCREATE_SKELETON_COLUMN_CONFIG) != null) {
+        }
+
+        if (config.getString(TABLE_AUTOCREATE_SKELETON_COLUMN_CONFIG) != null) {
             log.debug("{} provided", TABLE_AUTOCREATE_SKELETON_COLUMN_CONFIG);
             return new SuffixedResolver(config, config.getString(TABLE_AUTOCREATE_SKELETON_COLUMN_CONFIG), config.getString(TABLE_AUTOCREATE_SKELETON_SUFFIX_CONFIG));
-        } else {
-            log.debug("No skeleton configuration");
-            return null;
         }
+
+        if (config.getString(TABLE_AUTOCREATE_SKELETON_CUSTOM_RESOLVER) != null) {
+            log.debug("{} provided, using custom Resolver", TABLE_AUTOCREATE_SKELETON_CUSTOM_RESOLVER);
+            return resolver(config, TABLE_AUTOCREATE_SKELETON_CUSTOM_RESOLVER);
+        }
+
+        log.debug("No skeleton configuration");
+        return null;
     }
 
     public static Resolver<List<String>> createTableTagsResolver(QdbSinkConfig config) {
         if (config.getList(TABLE_AUTOCREATE_TAGS_CONFIG) != null) {
             log.debug("{} provided, using StaticResolver", TABLE_AUTOCREATE_TAGS_CONFIG);
             return new StaticResolver<>(config, config.getList(TABLE_AUTOCREATE_TAGS_CONFIG));
-        } else if (config.getString(TABLE_AUTOCREATE_TAGS_COLUMN_CONFIG) != null) {
+        }
+
+        if (config.getString(TABLE_AUTOCREATE_TAGS_COLUMN_CONFIG) != null) {
             log.debug("{} provided, using DefaultColumnResolver", TABLE_AUTOCREATE_TAGS_COLUMN_CONFIG);
             return new DefaultColumnResolver<>(config, config.getString(TABLE_AUTOCREATE_TAGS_COLUMN_CONFIG));
-        } else {
-            log.debug("No table tags configuration");
-            return null;
         }
+
+        if (config.getString(TABLE_AUTOCREATE_TAGS_CUSTOM_RESOLVER) != null) {
+            log.debug("{} provided, using custom Resolver", TABLE_AUTOCREATE_TAGS_CUSTOM_RESOLVER);
+            return resolver(config, TABLE_AUTOCREATE_TAGS_CUSTOM_RESOLVER);
+        }
+
+        log.debug("No table tags configuration");
+        return null;
+
     }
 
     public static Resolver<Long> createShardSizeResolver(QdbSinkConfig config) {
-        if (config.getLong(TABLE_AUTOCREATE_SHARD_SIZE_CONFIG) != null) {
-            log.debug("{} provided, using StaticResolver", TABLE_AUTOCREATE_SHARD_SIZE_CONFIG);
-            return new StaticResolver<>(config, config.getLong(TABLE_AUTOCREATE_SHARD_SIZE_CONFIG));
-        } else if (config.getString(TABLE_AUTOCREATE_SHARD_SIZE_COLUMN_CONFIG) != null) {
+        if (config.getString(TABLE_AUTOCREATE_SHARD_SIZE_COLUMN_CONFIG) != null) {
             log.debug("{} provided, using DefaultColumnResolver", TABLE_AUTOCREATE_SHARD_SIZE_COLUMN_CONFIG);
             return new DefaultColumnResolver<>(config, config.getString(TABLE_AUTOCREATE_SHARD_SIZE_COLUMN_CONFIG));
-        } else {
-            log.debug("No table shard size configuration");
-            return null;
         }
+
+        if (config.getClass(TABLE_AUTOCREATE_SHARD_SIZE_CUSTOM_RESOLVER) != null) {
+            log.debug("{} provided, using custom Resolver", TABLE_AUTOCREATE_SHARD_SIZE_CUSTOM_RESOLVER);
+            return  resolver(config, TABLE_AUTOCREATE_SHARD_SIZE_CUSTOM_RESOLVER);
+        }
+
+        log.debug("{} provided, using StaticResolver", TABLE_AUTOCREATE_SHARD_SIZE_CONFIG);
+        return new StaticResolver<>(config, config.getLong(TABLE_AUTOCREATE_SHARD_SIZE_CONFIG));
     }
 
     public static RecordWriter createRecordWriter(QdbSinkConfig config) {
@@ -169,4 +199,14 @@ public class ConnectorUtils {
             return new RowRecordWriter(timespecResolver);
         }
     }
+
+    private static <T> Resolver<T> resolver(QdbSinkConfig config, String key) {
+        try {
+            return Utils.newParameterizedInstance(config.getClass(key).getName(), config);
+        } catch (ClassNotFoundException e) {
+            throw new DataException(e);
+        }
+    }
+
+
 }

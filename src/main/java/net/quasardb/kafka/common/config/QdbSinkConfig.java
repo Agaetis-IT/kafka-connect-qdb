@@ -1,5 +1,7 @@
 package net.quasardb.kafka.common.config;
 
+import net.quasardb.kafka.common.resolver.Resolver;
+import net.quasardb.qdb.ts.Table;
 import org.apache.kafka.common.config.AbstractConfig;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.common.config.ConfigDef.Importance;
@@ -21,16 +23,20 @@ public class QdbSinkConfig extends AbstractConfig {
     public static final String TABLE_CONFIG = "qdb.table";
     public static final String TABLE_FROM_TOPIC_CONFIG = "qdb.table_from_topic";
     public static final String TABLE_FROM_COLUMN_CONFIG = "qdb.table_from_column";
+    public static final String TABLE_FROM_CUSTOM_RESOLVER= "qdb.table_from_custom_resolver";
     public static final String TABLE_FROM_COMPOSITE_COLUMNS_CONFIG = "qdb.table_from_columns";
     public static final String TABLE_FROM_COMPOSITE_COLUMNS_DELIM_CONFIG = "qdb.table_from_columns_delimiter";
     public static final String TABLE_AUTOCREATE_CONFIG = "qdb.table_autocreate";
     public static final String TABLE_AUTOCREATE_TAGS_CONFIG = "qdb.table_autocreate_tags";
     public static final String TABLE_AUTOCREATE_TAGS_COLUMN_CONFIG = "qdb.table_autocreate_tags_column";
+    public static final String TABLE_AUTOCREATE_TAGS_CUSTOM_RESOLVER= "qdb.table_autocreate_tags_custom_resolver";
     public static final String TABLE_AUTOCREATE_SKELETON_CONFIG = "qdb.table_autocreate_skeleton";
     public static final String TABLE_AUTOCREATE_SKELETON_COLUMN_CONFIG = "qdb.table_autocreate_skeleton_column";
+    public static final String TABLE_AUTOCREATE_SKELETON_CUSTOM_RESOLVER = "qdb.table_autocreate_skeleton_custom_resolver";
     public static final String TABLE_AUTOCREATE_SKELETON_SUFFIX_CONFIG = "qdb.table_autocreate_skeleton_suffix";
     public static final String TABLE_AUTOCREATE_SHARD_SIZE_CONFIG = "qdb.table_autocreate_shard_size";
     public static final String TABLE_AUTOCREATE_SHARD_SIZE_COLUMN_CONFIG = "qdb.table_autocreate_shard_size_column";
+    public static final String TABLE_AUTOCREATE_SHARD_SIZE_CUSTOM_RESOLVER = "qdb.table_autocreate_shard_size_custom_resolver";
     public static final String TIMESTAMP_FROM_COLUMN_CONFIG = "qdb.timestamp_from_column";
     public static final String TIMESTAMP_FROM_COLUMN_UNIT_CONFIG = "qdb.timestamp_from_column_unit";
     public static final String COLUMN_FROM_COLUMN_CONFIG = "qdb.column_from_column";
@@ -86,6 +92,12 @@ public class QdbSinkConfig extends AbstractConfig {
                         null,
                         Importance.MEDIUM,
                         "Identifier of the column to acquire table name from. Cannot be used in combination with qdb.table_from_topic")
+                .define(TABLE_FROM_CUSTOM_RESOLVER,
+                        Type.CLASS,
+                        null,
+                        ClassValidator.impl(Resolver.class),
+                        Importance.MEDIUM,
+                        "Class instance of Resolver used to get table name")
                 .define(TABLE_FROM_COMPOSITE_COLUMNS_CONFIG,
                         Type.LIST,
                         null,
@@ -111,9 +123,15 @@ public class QdbSinkConfig extends AbstractConfig {
                         null,
                         Importance.MEDIUM,
                         "Allows providing of a column which will be used to look up a dynamic 'skeleton' table whose schema will be copied into autocreated tables.")
+                .define(TABLE_AUTOCREATE_SKELETON_CUSTOM_RESOLVER,
+                        Type.CLASS,
+                        null,
+                        ClassValidator.impl(Resolver.class),
+                        Importance.MEDIUM,
+                        "Class instance of Resolver used to get table skeleton name")
                 .define(TABLE_AUTOCREATE_SHARD_SIZE_CONFIG,
                         Type.LONG,
-                        null,
+                        86400000L, // Default QuasarDB Table shard size.
                         Importance.MEDIUM,
                         "Allows providing of a static 'shardsize' which will be used for all autocreated tables.")
                 .define(TABLE_AUTOCREATE_SHARD_SIZE_COLUMN_CONFIG,
@@ -121,6 +139,12 @@ public class QdbSinkConfig extends AbstractConfig {
                         null,
                         Importance.MEDIUM,
                         "Allows providing of a column which will be used to look up a dynamic 'shardsize' which will be used for all autocreated tables.")
+                .define(TABLE_AUTOCREATE_SHARD_SIZE_CUSTOM_RESOLVER,
+                        Type.CLASS,
+                        null,
+                        ClassValidator.impl(Resolver.class),
+                        Importance.MEDIUM,
+                        "Class instance of Resolver used to get table shard size")
                 .define(TABLE_AUTOCREATE_SKELETON_SUFFIX_CONFIG,
                         Type.STRING,
                         null,
@@ -136,6 +160,12 @@ public class QdbSinkConfig extends AbstractConfig {
                         null,
                         Importance.MEDIUM,
                         "Allows providing of a column which will be used to assign additional tags to newly created tables.")
+                .define(TABLE_AUTOCREATE_TAGS_CUSTOM_RESOLVER,
+                        Type.CLASS,
+                        null,
+                        ClassValidator.impl(Resolver.class),
+                        Importance.MEDIUM,
+                        "Class instance of Resolver used to get table tags")
                 .define(TIMESTAMP_FROM_COLUMN_CONFIG,
                         Type.STRING,
                         null,
@@ -144,7 +174,7 @@ public class QdbSinkConfig extends AbstractConfig {
                 .define(TIMESTAMP_FROM_COLUMN_UNIT_CONFIG,
                         Type.STRING,
                         TimeUnit.MILLISECONDS.name(),
-                        ValidString.in(of(TimeUnit.values()).map(TimeUnit::name).toArray(String[]::new)),
+                        ValidString.in(of(TimeUnit.MILLISECONDS, TimeUnit.MICROSECONDS, TimeUnit.NANOSECONDS).map(TimeUnit::name).toArray(String[]::new)),
                         Importance.MEDIUM,
                         "Allows providing of a TimeUnit precision for timespec column.")
                 .define(COLUMN_FROM_COLUMN_CONFIG,
