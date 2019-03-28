@@ -60,45 +60,54 @@ public class RecordConverter {
 
 
     private static Value doConvert(Column qdbColumn, String recordColumn, Struct data) throws DataException {
-        Object value = data.get(recordColumn);
-        if (value != null) {
-            switch(qdbColumn.getType()) {
-            case INT64:
-                if (value instanceof Long) {
-                    return Value.createInt64((Long)value);
-                }
+        try {
+            Object value = data.get(recordColumn);
+            if (value != null) {
+                switch (qdbColumn.getType()) {
+                    case INT64:
+                        if (value instanceof Long) {
+                            return Value.createInt64((Long) value);
+                        }
 
-                log.warn("Ignoring int64 column '{}': expected Long value, got: {}", qdbColumn.getName (), value.getClass());
-                return Value.createNull();
-            case DOUBLE:
-                if (value instanceof Double) {
-                    return Value.createDouble((Double)value);
-                }
+                        log.warn("Ignoring int64 column '{}': expected Long value, got: {}",
+                            qdbColumn.getName(), value.getClass());
+                        return Value.createNull();
+                    case DOUBLE:
+                        if (value instanceof Double) {
+                            return Value.createDouble((Double) value);
+                        }
 
-                if (value instanceof Long) {
-                    return Value.createDouble(((Long)value).doubleValue());
-                }
+                        if (value instanceof Long) {
+                            return Value.createDouble(((Long) value).doubleValue());
+                        }
 
-                log.warn("Ignoring double column '{}': expected Double value, got: {}", qdbColumn.getName (), value.getClass());
-                return Value.createNull();
-            case TIMESTAMP:
-                if (value instanceof Long) {
-                  return Value.createTimestamp(new Timespec((Long)value));
-                }
+                        log.warn("Ignoring double column '{}': expected Double value, got: {}",
+                            qdbColumn.getName(), value.getClass());
+                        return Value.createNull();
+                    case TIMESTAMP:
+                        if (value instanceof Long) {
+                            return Value.createTimestamp(new Timespec((Long) value));
+                        }
 
-                log.warn("Ignoring timestamp column '{}': expected Long value, got: {}", qdbColumn.getName(), value.getClass());
-                return Value.createNull();
-            case BLOB:
-                if (value instanceof byte[]) {
-                    return Value.createSafeBlob((byte[])value);
-                }
+                        log.warn("Ignoring timestamp column '{}': expected Long value, got: {}",
+                            qdbColumn.getName(), value.getClass());
+                        return Value.createNull();
+                    case BLOB:
+                        if (value instanceof byte[]) {
+                            return Value.createSafeBlob((byte[]) value);
+                        }
+                        if (value instanceof String) {
+                            return Value.createSafeString((String) value);
+                        }
 
-                log.warn("Ignoring blob column '{}': expected String value, got: {}", qdbColumn.getName (), value.getClass());
-                return Value.createNull();
+                        log.warn("Ignoring blob column '{}': expected byte[]/String value, got: {}",
+                            qdbColumn.getName(), value.getClass());
+                        return Value.createNull();
+                }
             }
+        }catch(DataException ex) {
+            log.warn("key not found, setting null value: {}", qdbColumn.getName());
         }
-
-        log.warn("key not found, setting null value: {}", qdbColumn.getName());
         return Value.createNull();
     }
 
