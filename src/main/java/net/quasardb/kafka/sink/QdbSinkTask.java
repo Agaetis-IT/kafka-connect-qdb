@@ -55,8 +55,7 @@ public class QdbSinkTask extends SinkTask {
 
         Map<String, Object> validatedProps = new QdbSinkConnector().config().parse(props);
 
-        this.session =
-                ConnectorUtils.connect(validatedProps);
+        this.session = ConnectorUtils.connect(validatedProps);
 
         this.tableResolver = ConnectorUtils.createTableResolver(validatedProps);
         this.skeletonTableResolver = ConnectorUtils.createSkeletonTableResolver(validatedProps);

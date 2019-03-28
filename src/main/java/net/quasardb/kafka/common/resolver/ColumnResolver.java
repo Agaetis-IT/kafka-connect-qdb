@@ -16,7 +16,6 @@ abstract public class ColumnResolver<T> extends Resolver<T> {
 
     public ColumnResolver(String columnName) {
         this.columnName = columnName;
-        this.suffix = suffix;
 
         log.info("Initializing column table resolver");
     }
