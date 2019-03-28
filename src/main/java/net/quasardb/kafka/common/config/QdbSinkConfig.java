@@ -4,10 +4,12 @@ import org.apache.kafka.common.config.AbstractConfig;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.common.config.ConfigDef.Importance;
 import org.apache.kafka.common.config.ConfigDef.Type;
+import org.apache.kafka.common.config.ConfigDef.ValidString;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.stream.Stream.of;
 import static net.quasardb.kafka.sink.QdbSinkConnector.DEFAULT_CLUSTER_URI;
 
 public class QdbSinkConfig extends AbstractConfig {
@@ -30,7 +32,7 @@ public class QdbSinkConfig extends AbstractConfig {
     public static final String TABLE_AUTOCREATE_SHARD_SIZE_CONFIG = "qdb.table_autocreate_shard_size";
     public static final String TABLE_AUTOCREATE_SHARD_SIZE_COLUMN_CONFIG = "qdb.table_autocreate_shard_size_column";
     public static final String TIMESTAMP_FROM_COLUMN_CONFIG = "qdb.timestamp_from_column";
-    public static final String TIMESTAMP_FROM_COLUMN_FORMAT_CONFIG = "qdb.timestamp_from_column_format";
+    public static final String TIMESTAMP_FROM_COLUMN_UNIT_CONFIG = "qdb.timestamp_from_column_unit";
     public static final String COLUMN_FROM_COLUMN_CONFIG = "qdb.column_from_column";
     public static final String COLUMN_FROM_COMPOSITE_COLUMNS_CONFIG = "qdb.column_from_columns";
     public static final String COLUMN_FROM_COMPOSITE_COLUMNS_DELIM_CONFIG = "qdb.column_from_columns_delimiter";
@@ -139,9 +141,10 @@ public class QdbSinkConfig extends AbstractConfig {
                         null,
                         Importance.MEDIUM,
                         "Allows providing of a column which will be used to create row timespec.")
-                .define(TIMESTAMP_FROM_COLUMN_FORMAT_CONFIG,
+                .define(TIMESTAMP_FROM_COLUMN_UNIT_CONFIG,
                         Type.STRING,
                         TimeUnit.MILLISECONDS.name(),
+                        ValidString.in(of(TimeUnit.values()).map(TimeUnit::name).toArray(String[]::new)),
                         Importance.MEDIUM,
                         "Allows providing of a TimeUnit precision for timespec column.")
                 .define(COLUMN_FROM_COLUMN_CONFIG,

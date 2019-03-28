@@ -111,17 +111,7 @@ public class RecordConverter {
         return Value.createNull();
     }
 
-    private static Value[] doConvert(Column[] columns, Struct data) throws DataException {
-        Value[] out = new Value[columns.length];
 
-        for (int i = 0; i < columns.length; ++i) {
-            Column c = columns[i];
-
-            out[i] = doConvert(c, c.getName(), data);
-        }
-
-        return out;
-    }
 
     private static Value doConvert(Column qdbColumn, String recordColumn, Map data) throws DataException {
         Object value = data.get(recordColumn);
@@ -166,6 +156,17 @@ public class RecordConverter {
         return Value.createNull();
     }
 
+    private static Value[] doConvert(Column[] columns, Struct data) throws DataException {
+        Value[] out = new Value[columns.length];
+
+        for (int i = 0; i < columns.length; ++i) {
+            Column c = columns[i];
+
+            out[i] = doConvert(c, c.getName(), data);
+        }
+
+        return out;
+    }
 
     private static Value[] doConvert(Column[] columns, Map data) throws DataException {
         Value[] out = new Value[columns.length];

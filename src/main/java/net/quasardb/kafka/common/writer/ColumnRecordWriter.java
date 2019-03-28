@@ -8,17 +8,14 @@ import net.quasardb.qdb.ts.Timespec;
 import net.quasardb.qdb.ts.Value;
 import net.quasardb.qdb.ts.Writer;
 import org.apache.kafka.connect.sink.SinkRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ColumnRecordWriter extends RecordWriter {
 
-    private static final Logger log = LoggerFactory.getLogger(ColumnRecordWriter.class);
+    private final Resolver<String> columnResolver;
+    private final Resolver<String> valueResolver;
 
-    private Resolver<String> columnResolver;
-    private Resolver<String> valueResolver;
-
-    public ColumnRecordWriter(Resolver<String> columnResolver, Resolver<String> valueResolver) {
+    public ColumnRecordWriter(Resolver<Timespec> timespecResolver, Resolver<String> columnResolver, Resolver<String> valueResolver ) {
+        super(timespecResolver);
         this.columnResolver = columnResolver;
         this.valueResolver = valueResolver;
     }
@@ -34,14 +31,12 @@ public class ColumnRecordWriter extends RecordWriter {
 
         log.debug("has value: {}", val);
 
-        Value[] row = { val };
+        Value[] row = {val};
 
         int offset = t.getOffset() + columnIndex;
 
         try {
-            Timespec ts = (s.timestamp() == null
-                           ? Timespec.now()
-                           : new Timespec(s.timestamp()));
+            Timespec ts = timespecResolver.resolve(s);
 
             log.debug("has timespec: {}", ts);
 

@@ -1,8 +1,10 @@
 package net.quasardb.kafka.common;
 
 import net.quasardb.kafka.common.config.QdbSinkConfig;
+import net.quasardb.kafka.common.resolver.ColumnTimespecResolver;
 import net.quasardb.kafka.common.resolver.ColumnsResolver;
 import net.quasardb.kafka.common.resolver.DefaultColumnResolver;
+import net.quasardb.kafka.common.resolver.DefaultTimespecResolver;
 import net.quasardb.kafka.common.resolver.Resolver;
 import net.quasardb.kafka.common.resolver.StaticResolver;
 import net.quasardb.kafka.common.resolver.SuffixedResolver;
@@ -11,6 +13,7 @@ import net.quasardb.kafka.common.writer.ColumnRecordWriter;
 import net.quasardb.kafka.common.writer.RecordWriter;
 import net.quasardb.kafka.common.writer.RowRecordWriter;
 import net.quasardb.qdb.Session;
+import net.quasardb.qdb.ts.Timespec;
 import org.apache.kafka.connect.errors.DataException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +22,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static net.quasardb.kafka.common.config.QdbSinkConfig.*;
 
@@ -125,6 +129,14 @@ public class ConnectorUtils {
     }
 
     public static RecordWriter createRecordWriter(QdbSinkConfig config) {
+
+        Resolver<Timespec> timespecResolver;
+        if (config.getString(TIMESTAMP_FROM_COLUMN_CONFIG) != null) {
+            timespecResolver = new ColumnTimespecResolver(config, config.getString(TIMESTAMP_FROM_COLUMN_CONFIG), TimeUnit.valueOf(config.getString(TIMESTAMP_FROM_COLUMN_UNIT_CONFIG)));
+        } else {
+            timespecResolver = new DefaultTimespecResolver(config);
+        }
+
         if ((config.getString(COLUMN_FROM_COLUMN_CONFIG) != null)
                 || (config.getList(COLUMN_FROM_COMPOSITE_COLUMNS_CONFIG) != null)
                 || (config.getString(VALUE_COLUMN_CONFIG) != null)
@@ -136,7 +148,7 @@ public class ConnectorUtils {
             if (config.getString(COLUMN_FROM_COLUMN_CONFIG) != null) {
                 columnResolver = new DefaultColumnResolver(config, config.getString(COLUMN_FROM_COLUMN_CONFIG));
             } else if (config.getList(COLUMN_FROM_COMPOSITE_COLUMNS_CONFIG) != null) {
-                columnResolver = new  ColumnsResolver(config, config.getList(COLUMN_FROM_COMPOSITE_COLUMNS_CONFIG), config.getString(COLUMN_FROM_COMPOSITE_COLUMNS_DELIM_CONFIG));
+                columnResolver = new ColumnsResolver(config, config.getList(COLUMN_FROM_COMPOSITE_COLUMNS_CONFIG), config.getString(COLUMN_FROM_COMPOSITE_COLUMNS_DELIM_CONFIG));
             } else {
                 log.error("Unable to determine a column resolver for column value resolver");
                 return null;
@@ -152,9 +164,9 @@ public class ConnectorUtils {
                 return null;
             }
 
-            return new ColumnRecordWriter(columnResolver, valueResolver);
+            return new ColumnRecordWriter(timespecResolver, columnResolver, valueResolver);
         } else {
-            return new RowRecordWriter();
+            return new RowRecordWriter(timespecResolver);
         }
     }
 }
