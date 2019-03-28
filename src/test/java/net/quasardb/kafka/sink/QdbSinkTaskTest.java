@@ -2,9 +2,10 @@ package net.quasardb.kafka.sink;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import net.quasardb.kafka.common.config.QdbSinkConfig;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.Arguments;
@@ -18,13 +19,10 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 import java.util.stream.IntStream;
-import java.nio.ByteBuffer;
 import java.io.IOException;
 
-import org.apache.kafka.connect.data.Field;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
-import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.kafka.common.record.TimestampType;
 
@@ -33,13 +31,11 @@ import org.apache.kafka.connect.errors.DataException;
 import net.quasardb.qdb.ts.Column;
 import net.quasardb.qdb.ts.Reader;
 import net.quasardb.qdb.ts.Row;
-import net.quasardb.qdb.ts.Value;
 import net.quasardb.qdb.ts.TimeRange;
 import net.quasardb.qdb.ts.Timespec;
 import net.quasardb.qdb.ts.Table;
 import net.quasardb.qdb.ts.Tables;
 
-import net.quasardb.kafka.common.ConnectorUtils;
 import net.quasardb.kafka.common.TestUtils;
 import net.quasardb.kafka.common.Fixture;
 
@@ -66,7 +62,7 @@ public class QdbSinkTaskTest {
     @MethodSource("randomSchemaWithValue")
     public void testPutValuePrimitives(Fixture state, Schema schema, Object value) {
         Map<String, String> props = state.props;
-        props.put(ConnectorUtils.TABLE_FROM_TOPIC_CONFIG, "true");
+        props.put(QdbSinkConfig.TABLE_FROM_TOPIC_CONFIG, "true");
 
         this.task.start(props);
 
@@ -87,7 +83,7 @@ public class QdbSinkTaskTest {
     @MethodSource("randomRecord")
     public void testPutRow(Fixture fixture, Integer offset, Row row, SinkRecord record) {
         Map<String, String> props = fixture.props;
-        props.put(ConnectorUtils.TABLE_FROM_TOPIC_CONFIG, "true");
+        props.put(QdbSinkConfig.TABLE_FROM_TOPIC_CONFIG, "true");
 
         this.task.start(props);
         this.task.put(Collections.singletonList(record));
@@ -101,7 +97,7 @@ public class QdbSinkTaskTest {
     @MethodSource("randomRecords")
     public void testPutRows(Fixture fixture, Integer offset, Collection<SinkRecord> records) {
         Map<String, String> props = fixture.props;
-        props.put(ConnectorUtils.TABLE_FROM_TOPIC_CONFIG, "true");
+        props.put(QdbSinkConfig.TABLE_FROM_TOPIC_CONFIG, "true");
 
         this.task.start(props);
         this.task.put(records);
@@ -120,7 +116,7 @@ public class QdbSinkTaskTest {
                                           Row row,
                                           SinkRecord record) {
         Map<String, String> props = fixture.props;
-        props.put(ConnectorUtils.TABLE_FROM_TOPIC_CONFIG, "true");
+        props.put(QdbSinkConfig.TABLE_FROM_TOPIC_CONFIG, "true");
 
         this.task.start(props);
         this.task.put(Collections.singletonList(record));
@@ -160,9 +156,9 @@ public class QdbSinkTaskTest {
         Map<String, String> props = fixture.props;
         String newTableName = TestUtils.createUniqueAlias();
 
-        props.put(ConnectorUtils.TABLE_CONFIG, newTableName);
-        props.put(ConnectorUtils.TABLE_AUTOCREATE_SKELETON_COLUMN_CONFIG, Fixture.SKELETON_COLUMN_ID);
-        props.put(ConnectorUtils.TABLE_AUTOCREATE_SKELETON_SUFFIX_CONFIG, "_skeleton");
+        props.put(QdbSinkConfig.TABLE_CONFIG, newTableName);
+        props.put(QdbSinkConfig.TABLE_AUTOCREATE_SKELETON_COLUMN_CONFIG, Fixture.SKELETON_COLUMN_ID);
+        props.put(QdbSinkConfig.TABLE_AUTOCREATE_SKELETON_SUFFIX_CONFIG, "_skeleton");
 
         this.task.start(props);
         this.task.put(Collections.singletonList(record));
@@ -203,9 +199,9 @@ public class QdbSinkTaskTest {
         List<String> newTableTags = Arrays.asList(TestUtils.createUniqueAlias(),
                                                   TestUtils.createUniqueAlias());
 
-        props.put(ConnectorUtils.TABLE_CONFIG, newTableName);
-        props.put(ConnectorUtils.TABLE_AUTOCREATE_SKELETON_COLUMN_CONFIG, Fixture.SKELETON_COLUMN_ID);
-        props.put(ConnectorUtils.TABLE_AUTOCREATE_TAGS_CONFIG, String.join(",", newTableTags));
+        props.put(QdbSinkConfig.TABLE_CONFIG, newTableName);
+        props.put(QdbSinkConfig.TABLE_AUTOCREATE_SKELETON_COLUMN_CONFIG, Fixture.SKELETON_COLUMN_ID);
+        props.put(QdbSinkConfig.TABLE_AUTOCREATE_TAGS_CONFIG, String.join(",", newTableTags));
 
         this.task.start(props);
         this.task.put(Collections.singletonList(record));
@@ -233,9 +229,9 @@ public class QdbSinkTaskTest {
         Map<String, String> props = fixture.props;
         String newTableName = TestUtils.createUniqueAlias();
 
-        props.put(ConnectorUtils.TABLE_CONFIG, newTableName);
-        props.put(ConnectorUtils.TABLE_AUTOCREATE_SKELETON_COLUMN_CONFIG, Fixture.SKELETON_COLUMN_ID);
-        props.put(ConnectorUtils.TABLE_AUTOCREATE_TAGS_COLUMN_CONFIG, Fixture.TAGS_COLUMN_ID);
+        props.put(QdbSinkConfig.TABLE_CONFIG, newTableName);
+        props.put(QdbSinkConfig.TABLE_AUTOCREATE_SKELETON_COLUMN_CONFIG, Fixture.SKELETON_COLUMN_ID);
+        props.put(QdbSinkConfig.TABLE_AUTOCREATE_TAGS_COLUMN_CONFIG, Fixture.TAGS_COLUMN_ID);
 
         this.task.start(props);
         this.task.put(Collections.singletonList(record));
@@ -264,8 +260,8 @@ public class QdbSinkTaskTest {
                                            SinkRecord record) {
         Map<String, String> props = fixture.props;
 
-        props.put(ConnectorUtils.TABLE_FROM_COLUMN_CONFIG, Fixture.TABLE_COLUMN_ID);
-        props.put(ConnectorUtils.TABLE_AUTOCREATE_SKELETON_COLUMN_CONFIG, Fixture.SKELETON_COLUMN_ID);
+        props.put(QdbSinkConfig.TABLE_FROM_COLUMN_CONFIG, Fixture.TABLE_COLUMN_ID);
+        props.put(QdbSinkConfig.TABLE_AUTOCREATE_SKELETON_COLUMN_CONFIG, Fixture.SKELETON_COLUMN_ID);
 
         this.task.start(props);
         this.task.put(Collections.singletonList(record));
@@ -307,9 +303,9 @@ public class QdbSinkTaskTest {
         String tableNameDelim   = fixture.tableCompositeColumnDelim[offset];
         String[] tableNameParts = fixture.tableCompositeColumnParts[offset];
 
-        props.put(ConnectorUtils.TABLE_FROM_COMPOSITE_COLUMNS_CONFIG, String.join(",", Fixture.TABLE_COMPOSITE_COLUMNS_IDS));
-        props.put(ConnectorUtils.TABLE_FROM_COMPOSITE_COLUMNS_DELIM_CONFIG, tableNameDelim);
-        props.put(ConnectorUtils.TABLE_AUTOCREATE_SKELETON_COLUMN_CONFIG, Fixture.SKELETON_COLUMN_ID);
+        props.put(QdbSinkConfig.TABLE_FROM_COMPOSITE_COLUMNS_CONFIG, String.join(",", Fixture.TABLE_COMPOSITE_COLUMNS_IDS));
+        props.put(QdbSinkConfig.TABLE_FROM_COMPOSITE_COLUMNS_DELIM_CONFIG, tableNameDelim);
+        props.put(QdbSinkConfig.TABLE_AUTOCREATE_SKELETON_COLUMN_CONFIG, Fixture.SKELETON_COLUMN_ID);
 
         this.task.start(props);
         this.task.put(Collections.singletonList(record));
@@ -351,7 +347,7 @@ public class QdbSinkTaskTest {
         };
         Table t = Table.create(TestUtils.createSession(), tableName, columns);
 
-        props.put(ConnectorUtils.TABLE_CONFIG, tableName);
+        props.put(QdbSinkConfig.TABLE_CONFIG, tableName);
 
         // Hack, but we're abusing our composite table name for a composite column name here. This means we should
         // end up with a single table that has only a single column with a certain value.
@@ -372,9 +368,9 @@ public class QdbSinkTaskTest {
                                            -1,            // kafkaOffset
                                            time.toEpochMillis(), TimestampType.CREATE_TIME);
 
-        props.put(ConnectorUtils.COLUMN_FROM_COMPOSITE_COLUMNS_CONFIG, String.join(",", columnNameParts));
-        props.put(ConnectorUtils.COLUMN_FROM_COMPOSITE_COLUMNS_DELIM_CONFIG, columnNameDelim);
-        props.put(ConnectorUtils.VALUE_COLUMN_CONFIG, "value");
+        props.put(QdbSinkConfig.COLUMN_FROM_COMPOSITE_COLUMNS_CONFIG, String.join(",", columnNameParts));
+        props.put(QdbSinkConfig.COLUMN_FROM_COMPOSITE_COLUMNS_DELIM_CONFIG, columnNameDelim);
+        props.put(QdbSinkConfig.VALUE_COLUMN_CONFIG, "value");
 
         this.task.start(props);
         this.task.put(Collections.singletonList(record));

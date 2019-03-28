@@ -3,6 +3,7 @@ package net.quasardb.kafka.sink;
 import net.quasardb.kafka.common.ConnectorUtils;
 import net.quasardb.kafka.common.TableInfo;
 import net.quasardb.kafka.common.TableRegistry;
+import net.quasardb.kafka.common.config.QdbSinkConfig;
 import net.quasardb.kafka.common.resolver.Resolver;
 import net.quasardb.kafka.common.writer.RecordWriter;
 import net.quasardb.qdb.Session;
@@ -34,6 +35,8 @@ public class QdbSinkTask extends SinkTask {
     private Resolver<List<String>> tableTagsResolver;
     private Resolver<Long> tableShardSizeResolver;
 
+    private QdbSinkConfig config;
+
     /**
      * Always use no-arg constructor, #start will initialize the task.
      */
@@ -53,15 +56,15 @@ public class QdbSinkTask extends SinkTask {
 
         this.tableRegistry = new TableRegistry();
 
-        Map<String, Object> validatedProps = new QdbSinkConnector().config().parse(props);
+        config = new QdbSinkConfig(props, log.isDebugEnabled());
 
-        this.session = ConnectorUtils.connect(validatedProps);
+        this.session = ConnectorUtils.connect(config);
 
-        this.tableResolver = ConnectorUtils.createTableResolver(validatedProps);
-        this.skeletonTableResolver = ConnectorUtils.createSkeletonTableResolver(validatedProps);
-        this.tableTagsResolver = ConnectorUtils.createTableTagsResolver(validatedProps);
-        this.tableShardSizeResolver = ConnectorUtils.createShardSizeResolver(validatedProps);
-        this.recordWriter = ConnectorUtils.createRecordWriter(validatedProps);
+        this.tableResolver = ConnectorUtils.createTableResolver(config);
+        this.skeletonTableResolver = ConnectorUtils.createSkeletonTableResolver(config);
+        this.tableTagsResolver = ConnectorUtils.createTableTagsResolver(config);
+        this.tableShardSizeResolver = ConnectorUtils.createShardSizeResolver(config);
+        this.recordWriter = ConnectorUtils.createRecordWriter(config);
 
         log.info("Started QdbSinkTask");
     }

@@ -3,11 +3,11 @@ package net.quasardb.kafka.common;
 import java.io.IOException;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
+import net.quasardb.kafka.common.config.QdbSinkConfig;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.sink.SinkRecord;
 
@@ -98,10 +98,10 @@ public class Fixture implements Cloneable {
                 })
             .collect(Collectors.joining(","));
 
-        out.props.put(ConnectorUtils.CLUSTER_URI_CONFIG, TestUtils.CLUSTER_URI);
-        out.props.put(ConnectorUtils.SECURITY_USERNAME_CONFIG, TestUtils.SECURITY_USERNAME);
-        out.props.put(ConnectorUtils.SECURITY_USER_PRIVATE_KEY_CONFIG, TestUtils.SECURITY_USER_PRIVATE_KEY);
-        out.props.put(ConnectorUtils.SECURITY_CLUSTER_PUBLIC_KEY_CONFIG, TestUtils.SECURITY_CLUSTER_PUBLIC_KEY);
+        out.props.put(QdbSinkConfig.CLUSTER_URI_CONFIG, TestUtils.CLUSTER_URI);
+        out.props.put(QdbSinkConfig.SECURITY_USERNAME_CONFIG, TestUtils.SECURITY_USERNAME);
+        out.props.put(QdbSinkConfig.SECURITY_USER_PRIVATE_KEY_CONFIG, TestUtils.SECURITY_USER_PRIVATE_KEY);
+        out.props.put(QdbSinkConfig.SECURITY_CLUSTER_PUBLIC_KEY_CONFIG, TestUtils.SECURITY_CLUSTER_PUBLIC_KEY);
 
         return out;
     }
