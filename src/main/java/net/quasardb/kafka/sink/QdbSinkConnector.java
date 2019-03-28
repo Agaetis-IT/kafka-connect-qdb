@@ -108,6 +108,16 @@ public class QdbSinkConnector extends SinkConnector {
                     null,
                     Importance.MEDIUM,
                     "Allows providing of a column which will be used to look up a dynamic 'skeleton' table whose schema will be copied into autocreated tables.")
+            .define(ConnectorUtils.TABLE_AUTOCREATE_SHARD_SIZE_CONFIG,
+                Type.LONG,
+                null,
+                Importance.MEDIUM,
+                "Allows providing of a static 'shardsize' which will be used for all autocreated tables.")
+            .define(ConnectorUtils.TABLE_AUTOCREATE_SHARD_SIZE_COLUMN_CONFIG,
+                Type.LONG,
+                null,
+                Importance.MEDIUM,
+                "Allows providing of a column which will be used to look up a dynamic 'shardsize' which will be used for all autocreated tables.")
             .define(ConnectorUtils.TABLE_AUTOCREATE_SKELETON_SUFFIX_CONFIG,
                     Type.STRING,
                     null,

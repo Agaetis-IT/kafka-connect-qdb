@@ -1,8 +1,5 @@
 package net.quasardb.kafka.sink;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 import net.quasardb.kafka.common.ConnectorUtils;
 import net.quasardb.kafka.common.TableInfo;
 import net.quasardb.kafka.common.TableRegistry;
@@ -19,6 +16,10 @@ import org.apache.kafka.connect.sink.SinkTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 public class QdbSinkTask extends SinkTask {
 
     private static final Logger log = LoggerFactory.getLogger(QdbSinkTask.class);
@@ -31,6 +32,7 @@ public class QdbSinkTask extends SinkTask {
     private Resolver<String> tableResolver;
     private Resolver<String> skeletonTableResolver;
     private Resolver<List<String>> tableTagsResolver;
+    private Resolver<Long> tableShardSizeResolver;
 
     /**
      * Always use no-arg constructor, #start will initialize the task.
@@ -54,11 +56,12 @@ public class QdbSinkTask extends SinkTask {
         Map<String, Object> validatedProps = new QdbSinkConnector().config().parse(props);
 
         this.session =
-            ConnectorUtils.connect(validatedProps);
+                ConnectorUtils.connect(validatedProps);
 
         this.tableResolver = ConnectorUtils.createTableResolver(validatedProps);
         this.skeletonTableResolver = ConnectorUtils.createSkeletonTableResolver(validatedProps);
         this.tableTagsResolver = ConnectorUtils.createTableTagsResolver(validatedProps);
+        this.tableShardSizeResolver = ConnectorUtils.createShardSizeResolver(validatedProps);
         this.recordWriter = ConnectorUtils.createRecordWriter(validatedProps);
 
         log.info("Started QdbSinkTask");
@@ -95,15 +98,21 @@ public class QdbSinkTask extends SinkTask {
 
         Table skeleton = new Table(this.session, this.skeletonTableResolver.resolve(record));
         log.info("creating copy of skeleton table '{}' into target table '{}'", skeleton.getName(), tableName);
-        Table newTable = Table.create(this.session, tableName, skeleton);
-
+        Table table;
+        if (tableShardSizeResolver == null) {
+            table = Table.create(this.session, tableName, skeleton);
+        } else {
+            Long shardsize = this.tableShardSizeResolver.resolve(record);
+            log.debug("using shard size {} for table {}", shardsize, tableName);
+            table = Table.create(this.session, tableName, skeleton, shardsize);
+        }
         if (this.tableTagsResolver != null) {
             List<String> tags = this.tableTagsResolver.resolve(record);
             log.debug("attaching tags {} to table {}", tags, tableName);
             Table.attachTags(this.session, tableName, tags);
         }
 
-        return newTable;
+        return table;
     }
 
     private TableInfo addTableToRegistry(String tableName, SinkRecord record) throws DataException {

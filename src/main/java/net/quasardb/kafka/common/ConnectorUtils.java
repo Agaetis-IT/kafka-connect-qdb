@@ -4,8 +4,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import net.quasardb.kafka.common.resolver.ColumnResolver;
 import net.quasardb.kafka.common.resolver.ColumnsResolver;
 import net.quasardb.kafka.common.resolver.ListColumnResolver;
+import net.quasardb.kafka.common.resolver.LongColumnResolver;
 import net.quasardb.kafka.common.resolver.Resolver;
 import net.quasardb.kafka.common.resolver.StaticResolver;
 import net.quasardb.kafka.common.resolver.StringColumnResolver;
@@ -39,6 +41,8 @@ public class ConnectorUtils {
     public static final String TABLE_AUTOCREATE_SKELETON_CONFIG = "qdb.table_autocreate_skeleton";
     public static final String TABLE_AUTOCREATE_SKELETON_COLUMN_CONFIG = "qdb.table_autocreate_skeleton_column";
     public static final String TABLE_AUTOCREATE_SKELETON_SUFFIX_CONFIG = "qdb.table_autocreate_skeleton_suffix";
+    public static final String TABLE_AUTOCREATE_SHARD_SIZE_CONFIG = "qdb.table_autocreate_shard_size";
+    public static final String TABLE_AUTOCREATE_SHARD_SIZE_COLUMN_CONFIG = "qdb.table_autocreate_shard_size_column";
 
     public static final String TIMESTAMP_FROM_COLUMN_CONFIG = "qdb.timestamp_from_column";
     public static final String TIMESTAMP_FROM_COLUMN_FORMAT_CONFIG = "qdb.timestamp_from_column_format";
@@ -162,6 +166,21 @@ public class ConnectorUtils {
             return new ListColumnResolver<String>((String)validatedProps.get(TABLE_AUTOCREATE_TAGS_COLUMN_CONFIG));
         } else {
             log.debug("No table tags configuration");
+            return null;
+        }
+    }
+
+    public static Resolver<Long> createShardSizeResolver(Map <String, Object> validatedProps) {
+        if (validatedProps.containsKey(TABLE_AUTOCREATE_SHARD_SIZE_CONFIG) &&
+            validatedProps.get(TABLE_AUTOCREATE_SHARD_SIZE_CONFIG) != null) {
+            log.debug("{} provided, using StaticResolver",TABLE_AUTOCREATE_SHARD_SIZE_CONFIG);
+            return new StaticResolver<>((Long)validatedProps.get(TABLE_AUTOCREATE_SHARD_SIZE_CONFIG));
+        } else if (validatedProps.containsKey(TABLE_AUTOCREATE_SHARD_SIZE_COLUMN_CONFIG) &&
+            validatedProps.get(TABLE_AUTOCREATE_SHARD_SIZE_COLUMN_CONFIG) != null) {
+            log.debug("{} provided, using ColumnResolver", TABLE_AUTOCREATE_SHARD_SIZE_COLUMN_CONFIG);
+            return new LongColumnResolver((String)validatedProps.get(TABLE_AUTOCREATE_SHARD_SIZE_COLUMN_CONFIG));
+        } else {
+            log.debug("No table shard size configuration");
             return null;
         }
     }
