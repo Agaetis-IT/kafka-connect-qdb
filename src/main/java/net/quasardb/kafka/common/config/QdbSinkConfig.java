@@ -91,7 +91,7 @@ public class QdbSinkConfig extends AbstractConfig {
                         "Identifier of the columns to acquire table name from, joins strings of columns into a table name. Cannot be used in combination with qdb.table_from_topic or qdb.table_from_column.")
                 .define(TABLE_FROM_COMPOSITE_COLUMNS_DELIM_CONFIG,
                         Type.STRING,
-                        null,
+                        "",
                         Importance.MEDIUM,
                         "Optional delimiter to use for joining columns into a single table name.")
                 .define(TABLE_AUTOCREATE_CONFIG,
@@ -156,7 +156,7 @@ public class QdbSinkConfig extends AbstractConfig {
                         "For single column/value insertions: odentifier of the columns to acquire column name from, joins strings of columns into a column name. Cannot be used in combination with qdb.column_from_column.")
                 .define(COLUMN_FROM_COMPOSITE_COLUMNS_DELIM_CONFIG,
                         Type.STRING,
-                        null,
+                        "",
                         Importance.MEDIUM,
                         "Optional delimiter to use for joining columns into a single column name.")
                 .define(VALUE_COLUMN_CONFIG,

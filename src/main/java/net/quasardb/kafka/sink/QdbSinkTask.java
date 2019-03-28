@@ -59,7 +59,6 @@ public class QdbSinkTask extends SinkTask {
         config = new QdbSinkConfig(props, log.isDebugEnabled());
 
         this.session = ConnectorUtils.connect(config);
-
         this.tableResolver = ConnectorUtils.createTableResolver(config);
         this.skeletonTableResolver = ConnectorUtils.createSkeletonTableResolver(config);
         this.tableTagsResolver = ConnectorUtils.createTableTagsResolver(config);
