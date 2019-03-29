@@ -1,6 +1,7 @@
 package net.quasardb.kafka.common.config;
 
 import net.quasardb.kafka.common.resolver.Resolver;
+import net.quasardb.kafka.common.writer.RecordWriter;
 import net.quasardb.qdb.ts.Table;
 import org.apache.kafka.common.config.AbstractConfig;
 import org.apache.kafka.common.config.ConfigDef;
@@ -44,6 +45,7 @@ public class QdbSinkConfig extends AbstractConfig {
     public static final String COLUMN_FROM_COMPOSITE_COLUMNS_DELIM_CONFIG = "qdb.column_from_columns_delimiter";
     public static final String VALUE_COLUMN_CONFIG = "qdb.value_column";
     public static final String VALUE_FROM_COLUMN_CONFIG = "qdb.value_from_column";
+    public static final String CUSTOM_RECORD_WRITER= "qdb.record_writer_custom";
 
     public static ConfigDef BASE_CONFIG = baseConfigDef();
 
@@ -202,6 +204,12 @@ public class QdbSinkConfig extends AbstractConfig {
                         null,
                         Importance.MEDIUM,
                         "For single column/value insertions: identifier of the column to use as column identifier to acquire value from. For example, if set to 'thecol', the Kafka connector will look up the value of 'thecol', and use that value to retrieve the value, i.e. it allows an additional indirection.")
+                .define(CUSTOM_RECORD_WRITER,
+                        Type.CLASS,
+                        null,
+                        ClassValidator.impl(RecordWriter.class),
+                        Importance.HIGH.MEDIUM,
+                        "")
                 ;
     }
 }

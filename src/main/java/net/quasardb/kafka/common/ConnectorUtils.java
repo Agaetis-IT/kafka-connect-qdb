@@ -36,7 +36,7 @@ public class ConnectorUtils {
      * QuasarDB tables.
      */
     public static Map<String, String> parseTableFromTopic(Collection<String> xs) {
-        Map<String, String> out = new HashMap(xs.size());
+        Map<String, String> out = new HashMap<>(xs.size());
 
         for (String x : xs) {
             String[] tokens = x.split("=");
@@ -94,7 +94,7 @@ public class ConnectorUtils {
 
         if (config.getString(TABLE_FROM_CUSTOM_RESOLVER) != null) {
             log.debug("{} provided, using custom Resolver", TABLE_FROM_CUSTOM_RESOLVER);
-            return resolver(config, TABLE_FROM_CUSTOM_RESOLVER);
+            return custom(config, TABLE_FROM_CUSTOM_RESOLVER);
         }
 
         log.debug("validatedProps: {}", config);
@@ -115,7 +115,7 @@ public class ConnectorUtils {
 
         if (config.getString(TABLE_AUTOCREATE_SKELETON_CUSTOM_RESOLVER) != null) {
             log.debug("{} provided, using custom Resolver", TABLE_AUTOCREATE_SKELETON_CUSTOM_RESOLVER);
-            return resolver(config, TABLE_AUTOCREATE_SKELETON_CUSTOM_RESOLVER);
+            return custom(config, TABLE_AUTOCREATE_SKELETON_CUSTOM_RESOLVER);
         }
 
         log.debug("No skeleton configuration");
@@ -135,7 +135,7 @@ public class ConnectorUtils {
 
         if (config.getString(TABLE_AUTOCREATE_TAGS_CUSTOM_RESOLVER) != null) {
             log.debug("{} provided, using custom Resolver", TABLE_AUTOCREATE_TAGS_CUSTOM_RESOLVER);
-            return resolver(config, TABLE_AUTOCREATE_TAGS_CUSTOM_RESOLVER);
+            return custom(config, TABLE_AUTOCREATE_TAGS_CUSTOM_RESOLVER);
         }
 
         log.debug("No table tags configuration");
@@ -151,7 +151,7 @@ public class ConnectorUtils {
 
         if (config.getClass(TABLE_AUTOCREATE_SHARD_SIZE_CUSTOM_RESOLVER) != null) {
             log.debug("{} provided, using custom Resolver", TABLE_AUTOCREATE_SHARD_SIZE_CUSTOM_RESOLVER);
-            return  resolver(config, TABLE_AUTOCREATE_SHARD_SIZE_CUSTOM_RESOLVER);
+            return  custom(config, TABLE_AUTOCREATE_SHARD_SIZE_CUSTOM_RESOLVER);
         }
 
         log.debug("{} provided, using StaticResolver", TABLE_AUTOCREATE_SHARD_SIZE_CONFIG);
@@ -167,6 +167,10 @@ public class ConnectorUtils {
             timespecResolver = new DefaultTimespecResolver(config);
         }
 
+        if (config.getClass(CUSTOM_RECORD_WRITER)!=null){
+            return custom(config, CUSTOM_RECORD_WRITER);
+        }
+
         if ((config.getString(COLUMN_FROM_COLUMN_CONFIG) != null)
                 || (config.getList(COLUMN_FROM_COMPOSITE_COLUMNS_CONFIG) != null)
                 || (config.getString(VALUE_COLUMN_CONFIG) != null)
@@ -176,7 +180,7 @@ public class ConnectorUtils {
             Resolver<String> columnResolver;
 
             if (config.getString(COLUMN_FROM_COLUMN_CONFIG) != null) {
-                columnResolver = new DefaultColumnResolver(config, config.getString(COLUMN_FROM_COLUMN_CONFIG));
+                columnResolver = new DefaultColumnResolver<>(config, config.getString(COLUMN_FROM_COLUMN_CONFIG));
             } else if (config.getList(COLUMN_FROM_COMPOSITE_COLUMNS_CONFIG) != null) {
                 columnResolver = new ColumnsResolver(config, config.getList(COLUMN_FROM_COMPOSITE_COLUMNS_CONFIG), config.getString(COLUMN_FROM_COMPOSITE_COLUMNS_DELIM_CONFIG));
             } else {
@@ -188,19 +192,20 @@ public class ConnectorUtils {
             if (config.getString(VALUE_COLUMN_CONFIG) != null) {
                 valueResolver = new StaticResolver<>(config, config.getString(VALUE_COLUMN_CONFIG));
             } else if (config.getString(VALUE_FROM_COLUMN_CONFIG) != null) {
-                valueResolver = new DefaultColumnResolver(config, config.getString(VALUE_FROM_COLUMN_CONFIG));
+                valueResolver = new DefaultColumnResolver<>(config, config.getString(VALUE_FROM_COLUMN_CONFIG));
             } else {
                 log.error("Unable to determine a value resolver for column value resolver");
                 return null;
             }
 
             return new ColumnRecordWriter(timespecResolver, columnResolver, valueResolver);
-        } else {
-            return new RowRecordWriter(timespecResolver);
         }
+
+        return new RowRecordWriter(timespecResolver);
+
     }
 
-    private static <T> Resolver<T> resolver(QdbSinkConfig config, String key) {
+    private static <T> T custom(QdbSinkConfig config, String key) {
         try {
             return Utils.newParameterizedInstance(config.getClass(key).getName(), config);
         } catch (ClassNotFoundException e) {
