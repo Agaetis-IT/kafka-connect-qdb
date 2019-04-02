@@ -18,9 +18,9 @@ public class ClassValidator<T> implements Validator {
     @Override
     public void ensureValid(String name, Object value) {
         if (value == null)
-            throw new ConfigException(name, null, "Value must be non-null");
-        Class<?> c = (Class<?>) value;
+            return;
 
+        Class<?> c = (Class<?>) value;
 
         if (!clazz.isAssignableFrom(c))
             throw new ConfigException(name, value, "Value must implements " + clazz);

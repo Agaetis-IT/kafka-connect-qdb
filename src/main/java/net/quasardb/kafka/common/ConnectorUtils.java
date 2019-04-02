@@ -14,7 +14,6 @@ import net.quasardb.kafka.common.writer.RecordWriter;
 import net.quasardb.kafka.common.writer.RowRecordWriter;
 import net.quasardb.qdb.Session;
 import net.quasardb.qdb.ts.Timespec;
-import org.apache.kafka.common.utils.Utils;
 import org.apache.kafka.connect.errors.DataException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +25,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static net.quasardb.kafka.common.config.QdbSinkConfig.*;
+import static org.apache.kafka.common.utils.Utils.newParameterizedInstance;
 
 public class ConnectorUtils {
 
@@ -92,7 +92,7 @@ public class ConnectorUtils {
             return new StaticResolver<>(config, config.getString(TABLE_CONFIG));
         }
 
-        if (config.getString(TABLE_FROM_CUSTOM_RESOLVER) != null) {
+        if (config.getClass(TABLE_FROM_CUSTOM_RESOLVER) != null) {
             log.debug("{} provided, using custom Resolver", TABLE_FROM_CUSTOM_RESOLVER);
             return custom(config, TABLE_FROM_CUSTOM_RESOLVER);
         }
@@ -113,7 +113,7 @@ public class ConnectorUtils {
             return new SuffixedResolver(config, config.getString(TABLE_AUTOCREATE_SKELETON_COLUMN_CONFIG), config.getString(TABLE_AUTOCREATE_SKELETON_SUFFIX_CONFIG));
         }
 
-        if (config.getString(TABLE_AUTOCREATE_SKELETON_CUSTOM_RESOLVER) != null) {
+        if (config.getClass(TABLE_AUTOCREATE_SKELETON_CUSTOM_RESOLVER) != null) {
             log.debug("{} provided, using custom Resolver", TABLE_AUTOCREATE_SKELETON_CUSTOM_RESOLVER);
             return custom(config, TABLE_AUTOCREATE_SKELETON_CUSTOM_RESOLVER);
         }
@@ -133,7 +133,7 @@ public class ConnectorUtils {
             return new DefaultColumnResolver<>(config, config.getString(TABLE_AUTOCREATE_TAGS_COLUMN_CONFIG));
         }
 
-        if (config.getString(TABLE_AUTOCREATE_TAGS_CUSTOM_RESOLVER) != null) {
+        if (config.getClass(TABLE_AUTOCREATE_TAGS_CUSTOM_RESOLVER) != null) {
             log.debug("{} provided, using custom Resolver", TABLE_AUTOCREATE_TAGS_CUSTOM_RESOLVER);
             return custom(config, TABLE_AUTOCREATE_TAGS_CUSTOM_RESOLVER);
         }
@@ -151,7 +151,7 @@ public class ConnectorUtils {
 
         if (config.getClass(TABLE_AUTOCREATE_SHARD_SIZE_CUSTOM_RESOLVER) != null) {
             log.debug("{} provided, using custom Resolver", TABLE_AUTOCREATE_SHARD_SIZE_CUSTOM_RESOLVER);
-            return  custom(config, TABLE_AUTOCREATE_SHARD_SIZE_CUSTOM_RESOLVER);
+            return custom(config, TABLE_AUTOCREATE_SHARD_SIZE_CUSTOM_RESOLVER);
         }
 
         log.debug("{} provided, using StaticResolver", TABLE_AUTOCREATE_SHARD_SIZE_CONFIG);
@@ -167,8 +167,12 @@ public class ConnectorUtils {
             timespecResolver = new DefaultTimespecResolver(config);
         }
 
-        if (config.getClass(CUSTOM_RECORD_WRITER)!=null){
-            return custom(config, CUSTOM_RECORD_WRITER);
+        if (config.getClass(CUSTOM_RECORD_WRITER) != null) {
+            try {
+                return newParameterizedInstance(config.getClass(CUSTOM_RECORD_WRITER).getName(), Resolver.class, timespecResolver);
+            } catch (ClassNotFoundException e) {
+                throw new DataException(e);
+            }
         }
 
         if ((config.getString(COLUMN_FROM_COLUMN_CONFIG) != null)
@@ -207,7 +211,7 @@ public class ConnectorUtils {
 
     private static <T> T custom(QdbSinkConfig config, String key) {
         try {
-            return Utils.newParameterizedInstance(config.getClass(key).getName(), config);
+            return newParameterizedInstance(config.getClass(key).getName(), QdbSinkConfig.class, config);
         } catch (ClassNotFoundException e) {
             throw new DataException(e);
         }
