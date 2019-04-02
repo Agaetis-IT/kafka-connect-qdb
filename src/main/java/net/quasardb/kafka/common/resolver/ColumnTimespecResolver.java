@@ -26,7 +26,7 @@ public class ColumnTimespecResolver extends Resolver<Timespec> {
         final long timestamp = unit.toNanos(value);
 
         long seconds = TimeUnit.NANOSECONDS.toSeconds(timestamp);
-        long nanos = timestamp - seconds;
+        long nanos = timestamp - TimeUnit.SECONDS.toNanos(seconds);
 
         Timespec ts = new Timespec(seconds, nanos);
 
