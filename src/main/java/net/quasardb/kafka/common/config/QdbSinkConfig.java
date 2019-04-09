@@ -219,8 +219,7 @@ public class QdbSinkConfig extends AbstractConfig {
                         "Specify if writer is in async mode.")
                 .define(WRITER_MODE_AUTOFLUSH,
                         Type.BOOLEAN,
-                        null,
-                        ClassValidator.impl(RecordWriter.class),
+                        false,
                         Importance.MEDIUM,
                         "Specify if writer is in autoflush mode.")
 

@@ -127,8 +127,20 @@ public class QdbSinkTask extends SinkTask {
         }
 
         if (this.writer == null) {
-            log.debug("Initializing Async Writer");
-            this.writer = Table.asyncWriter(this.session, t.getTable());
+            boolean auto = config.getBoolean(QdbSinkConfig.WRITER_MODE_AUTOFLUSH);
+            boolean async = config.getBoolean(QdbSinkConfig.WRITER_MODE_ASYNC);
+
+            log.debug("Initializing Writer (Async:{} & AutoFlush:{})", async, auto);
+            if (auto) {
+                if (async)
+                    this.writer = Table.asyncAutoFlushWriter(this.session, t.getTable());
+                else
+                    this.writer = Table.autoFlushWriter(this.session, t.getTable());
+
+            } else if (async)
+                this.writer = Table.asyncWriter(this.session, t.getTable());
+            else
+                this.writer = Table.writer(this.session, t.getTable());
         } else {
             log.debug("Writer already initialized, adding extra table");
             this.writer.extraTables(t.getTable());
@@ -159,7 +171,7 @@ public class QdbSinkTask extends SinkTask {
     public void flush(Map<TopicPartition, OffsetAndMetadata> partitionOffsets) {
         try {
             if (this.writer != null) {
-                log.info("Flush request received, flushing writer..");
+                log.info("Flush request received, flushing writer.");
                 this.writer.flush();
             }
         } catch (Exception e) {
