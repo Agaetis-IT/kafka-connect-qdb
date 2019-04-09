@@ -46,6 +46,8 @@ public class QdbSinkConfig extends AbstractConfig {
     public static final String VALUE_COLUMN_CONFIG = "qdb.value_column";
     public static final String VALUE_FROM_COLUMN_CONFIG = "qdb.value_from_column";
     public static final String CUSTOM_RECORD_WRITER= "qdb.record_writer_custom";
+    public static final String WRITER_MODE_ASYNC ="qdb.writer_mode_async";
+    public static final String WRITER_MODE_AUTOFLUSH ="qdb.writer_mode_autoflush";
 
     public static ConfigDef BASE_CONFIG = baseConfigDef();
 
@@ -208,8 +210,20 @@ public class QdbSinkConfig extends AbstractConfig {
                         Type.CLASS,
                         null,
                         ClassValidator.impl(RecordWriter.class),
-                        Importance.HIGH.MEDIUM,
-                        "")
+                        Importance.MEDIUM,
+                        "Class instance of Record Writer used to map Connect data to QuasarDB row.")
+                .define(WRITER_MODE_ASYNC,
+                        Type.BOOLEAN,
+                        true,
+                        Importance.MEDIUM,
+                        "Specify if writer is in async mode.")
+                .define(WRITER_MODE_AUTOFLUSH,
+                        Type.BOOLEAN,
+                        null,
+                        ClassValidator.impl(RecordWriter.class),
+                        Importance.MEDIUM,
+                        "Specify if writer is in autoflush mode.")
+
                 ;
     }
 }
