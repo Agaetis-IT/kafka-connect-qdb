@@ -150,8 +150,11 @@ public class QdbSinkTask extends SinkTask {
     }
 
     @Override
-    public void put(Collection<SinkRecord> sinkRecords) {
-        for (SinkRecord s : sinkRecords) {
+    public void put(Collection<SinkRecord> records) {
+        final int count = records.size();
+
+        log.info("Putting {} records...", count);
+        for (SinkRecord s : records) {
             String tableName = this.tableResolver.resolve(s);
             TableInfo t = this.tableRegistry.get(tableName);
 
@@ -165,13 +168,14 @@ public class QdbSinkTask extends SinkTask {
 
             this.recordWriter.write(this.writer, t, s);
         }
+        log.info("{} records put to QDB writer.", count);
     }
 
     @Override
     public void flush(Map<TopicPartition, OffsetAndMetadata> partitionOffsets) {
         try {
             if (this.writer != null) {
-                log.info("Flush request received, flushing writer.");
+                log.info("Flush request received, flushing writer");
                 this.writer.flush();
             }
         } catch (Exception e) {
