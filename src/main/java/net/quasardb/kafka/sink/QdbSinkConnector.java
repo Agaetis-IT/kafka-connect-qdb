@@ -22,6 +22,7 @@ public class QdbSinkConnector extends SinkConnector {
     public static final String DEFAULT_CLUSTER_URI = "qdb://127.0.0.1:2836";
 
     private static final Logger log = LoggerFactory.getLogger(QdbSinkConnector.class);
+
     private Map<String, String> props;
 
     @Override
