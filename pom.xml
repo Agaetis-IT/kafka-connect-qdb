@@ -17,9 +17,9 @@
     </license>
   </licenses>
   <scm>
-    <url>https://github.com/bureau14/kafka-connect-qdb</url>
-    <connection>scm:git:git://github.com/bureau14/kafka-connect-qdb.git</connection>
-    <developerConnection>scm:git:git@github.com:bureau14/kafka-connect-qdb.git</developerConnection>
+    <url>https://github.com/Agaetis-IT/kafka-connect-qdb</url>
+    <connection>scm:git:git://github.com/Agaetis-IT/kafka-connect-qdb.git</connection>
+    <developerConnection>scm:git:git@github.com:Agaetis-IT/kafka-connect-qdb.git</developerConnection>
   </scm>
   <developers>
     <developer>
@@ -27,6 +27,12 @@
       <name>Leon Mergen</name>
       <url>https://github.com/solatis</url>
       <id>solatis</id>
+    </developer>
+    <developer>
+      <email>mgervais@agaetis.fr</email>
+      <name>Mickaël Gervais</name>
+      <url>https://github.com/mickaelgervais</url>
+      <id>mickaelgervais</id>
     </developer>
   </developers>
 
